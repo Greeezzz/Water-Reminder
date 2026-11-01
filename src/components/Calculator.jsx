@@ -15,8 +15,18 @@ export default function Calculator({ onSaveGoal }) {
   const calculateWater = (e) => {
     if (e) e.preventDefault();
     const w = parseFloat(weight) || 0;
-    const multiplier = activity === 'active' ? 40 : 30;
-    const goal = w * multiplier;
+    
+    // Formula ilmiah berdasarkan standar EFSA (European Food Safety Authority) & NIH / NASEM:
+    // - Perempuan: Normal 31 ml/kg, Aktif 38 ml/kg
+    // - Laki-laki: Normal 35 ml/kg, Aktif 40 ml/kg
+    let multiplier = 31;
+    if (gender === 'male') {
+      multiplier = activity === 'active' ? 40 : 35;
+    } else {
+      multiplier = activity === 'active' ? 38 : 31;
+    }
+
+    const goal = Math.round(w * multiplier);
     setCalculatedGoal(goal);
     localStorage.setItem('water_weight', weight);
     localStorage.setItem('water_gender', gender);
@@ -81,11 +91,11 @@ export default function Calculator({ onSaveGoal }) {
             onChange={(e) => setActivity(e.target.value)}
             className="w-full px-4 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-cyan-500"
           >
-            <option value="normal">Normal / Standar (Multiplier 30)</option>
-            <option value="active">Aktif / Olahraga (Multiplier 40)</option>
+            <option value="normal">Normal / Sedenter ({gender === 'male' ? '35' : '31'} ml/kg - EFSA Standar)</option>
+            <option value="active">Aktif / Olahraga ({gender === 'male' ? '40' : '38'} ml/kg - EFSA Standar)</option>
           </select>
           <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
-            * Rumus: Berat Badan (kg) × {activity === 'active' ? '40' : '30'} ml
+            * Rumus Ilmiah EFSA/NIH: Berat Badan × {gender === 'male' ? (activity === 'active' ? '40' : '35') : (activity === 'active' ? '38' : '31')} ml
           </p>
         </div>
 
