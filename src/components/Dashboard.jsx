@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function Dashboard({ currentGoal, scheduleActive }) {
+  const { user } = useAuth();
   const [consumed, setConsumed] = useState(Number(localStorage.getItem('water_consumed')) || 0);
   const [goal, setGoal] = useState(Number(currentGoal) || Number(localStorage.getItem('water_goal')) || 2000);
   const [syncStatus, setSyncStatus] = useState('Terhubung ke sistem lokal');
@@ -28,13 +30,20 @@ export default function Dashboard({ currentGoal, scheduleActive }) {
   };
 
   const syncToSupabase = async (amount) => {
+    if (!user) return; // Skip if no user logged in
+    
     try {
       setSyncStatus('Menyinkronkan ke Supabase...');
       const { error } = await supabase
         .from('water_logs')
-        .insert([{ consumed: amount, goal: goal, date: new Date().toISOString().split('T')[0] }]);
+        .insert([{ 
+          user_id: user.id,
+          amount: amount,
+          logged_at: new Date().toISOString()
+        }]);
 
       if (error) {
+        console.warn('Supabase insert error:', error.message);
         setSyncStatus('Tersimpan lokal (Supabase offline)');
       } else {
         setSyncStatus('Tersinkron ke Supabase ✓');

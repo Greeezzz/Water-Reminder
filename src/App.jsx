@@ -1,24 +1,40 @@
 import React, { useState } from 'react';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Dashboard from './components/Dashboard';
 import Calculator from './components/Calculator';
 import ScheduleSetup from './components/ScheduleSetup';
-import NotificationToast from './components/NotificationToast';
+import LoginPage from './components/LoginPage';
+import SetupProfile from './components/SetupProfile';
 
-export default function App() {
+function AppContent() {
+  const { user, profile, loading, signOut } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [currentGoal, setCurrentGoal] = useState(localStorage.getItem('water_goal') || '2000');
   const [scheduleActive, setScheduleActive] = useState(localStorage.getItem('water_schedule_active') === 'true');
   const [intervalsList, setIntervalsList] = useState([]);
 
-  const handleDrinkAction = (amount) => {
-    const current = Number(localStorage.getItem('water_consumed') || 0);
-    const updated = current + amount;
-    localStorage.setItem('water_consumed', updated);
-    // Switch to dashboard to show updated progress
-    setActiveTab('dashboard');
-    window.location.reload();
-  };
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#EAF8FD] flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-[#09BAED] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-[#055F78] font-semibold">Memuat...</p>
+        </div>
+      </div>
+    );
+  }
 
+  // Show login page if not authenticated
+  if (!user) {
+    return <LoginPage />;
+  }
+
+  // Show setup profile if no profile yet
+  if (!profile) {
+    return <SetupProfile />;
+  }
+
+  // Main app
   return (
     <div className="min-h-screen bg-[#EAF8FD] text-[#033F4F] flex flex-col">
       {/* Header */}
@@ -31,16 +47,29 @@ export default function App() {
           </div>
           <span className="text-base font-extrabold">Water Reminder</span>
         </div>
+        
+        {/* User Menu */}
+        <div className="flex items-center gap-3">
+          <span className="text-sm font-semibold text-[#055F78] hidden sm:block">
+            Halo, {profile.name}!
+          </span>
+          <button
+            onClick={signOut}
+            className="px-3 py-1.5 bg-white hover:bg-rose-50 border-2 border-rose-300 hover:border-rose-500 text-rose-700 text-xs font-bold rounded-xl transition-all"
+          >
+            Keluar
+          </button>
+        </div>
       </header>
 
       {/* Main Content */}
       <main className="flex-1 w-full px-4 pb-24 pt-2">
         {activeTab === 'dashboard' && (
-          <Dashboard currentGoal={currentGoal} scheduleActive={scheduleActive} intervalsList={intervalsList} />
+          <Dashboard currentGoal={profile.target_water} scheduleActive={scheduleActive} />
         )}
         {activeTab === 'calculator' && (
           <div className="max-w-2xl mx-auto">
-            <Calculator onSaveGoal={(goal) => setCurrentGoal(goal)} />
+            <Calculator onSaveGoal={() => {}} profile={profile} />
           </div>
         )}
         {activeTab === 'schedule' && (
@@ -94,9 +123,16 @@ export default function App() {
             </svg>
             <span className="text-xs font-bold">Jadwal</span>
           </button>
-
         </div>
       </nav>
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
