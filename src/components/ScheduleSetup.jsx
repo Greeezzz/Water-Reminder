@@ -65,45 +65,45 @@ export default function ScheduleSetup({ onScheduleChange }) {
   return (
     <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 max-w-xl mx-auto">
       <div className="flex items-center gap-3 mb-6">
-        <div className="p-3 bg-purple-100 text-purple-600 rounded-xl">
+        <div className="p-3 bg-[#EAF8FD] text-[#09BAED] rounded-xl border-2 border-[#09BAED]">
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
         <div>
-          <h2 className="text-xl font-bold text-slate-900">Setup Jadwal Fleksibel Minum Air</h2>
-          <p className="text-sm text-slate-500">Fitur oleh Keysha - Atur jam & interval sesuai gaya hidupmu</p>
+          <h2 className="text-xl font-bold text-[#033F4F]">Setup Jadwal Fleksibel Minum Air</h2>
+          <p className="text-sm text-[#055F78]">Atur jam & interval sesuai gaya hidupmu</p>
         </div>
       </div>
 
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-1">Jam Mulai</label>
+            <label className="block text-sm font-semibold text-[#033F4F] mb-1">Jam Mulai</label>
             <input
               type="time"
               value={startTime}
               onChange={(e) => setStartTime(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="w-full px-4 py-2.5 rounded-xl border-2 border-[#BFE9F5] bg-[#EAF8FD] text-[#033F4F] focus:outline-none focus:ring-2 focus:ring-[#09BAED] focus:border-[#09BAED]"
             />
           </div>
           <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-1">Jam Selesai</label>
+            <label className="block text-sm font-semibold text-[#033F4F] mb-1">Jam Selesai</label>
             <input
               type="time"
               value={endTime}
               onChange={(e) => setEndTime(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="w-full px-4 py-2.5 rounded-xl border-2 border-[#BFE9F5] bg-[#EAF8FD] text-[#033F4F] focus:outline-none focus:ring-2 focus:ring-[#09BAED] focus:border-[#09BAED]"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-slate-700 mb-1">Interval Waktu (Jam)</label>
+          <label className="block text-sm font-semibold text-[#033F4F] mb-1">Interval Waktu (Jam)</label>
           <select
             value={intervalHours}
             onChange={(e) => setIntervalHours(e.target.value)}
-            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="w-full px-4 py-2.5 rounded-xl border-2 border-[#BFE9F5] bg-[#EAF8FD] text-[#033F4F] focus:outline-none focus:ring-2 focus:ring-[#09BAED] focus:border-[#09BAED]"
           >
             <option value="1">Setiap 1 Jam</option>
             <option value="1.5">Setiap 1.5 Jam</option>
@@ -118,7 +118,7 @@ export default function ScheduleSetup({ onScheduleChange }) {
           {!isActive ? (
             <button
               onClick={handleStart}
-              className="flex-1 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl shadow-md transition duration-200 flex items-center justify-center gap-2"
+              className="flex-1 py-3 bg-[#09BAED] hover:bg-[#08A0C9] text-[#033F4F] font-bold rounded-xl shadow-md transition duration-200 flex items-center justify-center gap-2"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
@@ -129,7 +129,7 @@ export default function ScheduleSetup({ onScheduleChange }) {
           ) : (
             <button
               onClick={handleStop}
-              className="flex-1 py-3 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-xl shadow-md transition duration-200 flex items-center justify-center gap-2"
+              className="flex-1 py-3 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl shadow-md transition duration-200 flex items-center justify-center gap-2"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -140,20 +140,20 @@ export default function ScheduleSetup({ onScheduleChange }) {
         </div>
 
         {/* Status Badge */}
-        <div className={`p-3 rounded-xl border flex items-center justify-between ${isActive ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-slate-50 border-slate-200 text-slate-600'}`}>
+        <div className={`p-3 rounded-xl border-2 flex items-center justify-between ${isActive ? 'bg-[#EAF8FD] border-[#09BAED] text-[#033F4F]' : 'bg-slate-50 border-slate-300 text-[#055F78]'}`}>
           <span className="text-sm font-medium">Status Jadwal:</span>
-          <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${isActive ? 'bg-emerald-200 text-emerald-900' : 'bg-slate-200 text-slate-700'}`}>
+          <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${isActive ? 'bg-[#09BAED] text-[#033F4F]' : 'bg-slate-300 text-[#055F78]'}`}>
             {isActive ? 'Aktif (Berjalan)' : 'Non-Aktif'}
           </span>
         </div>
 
         {/* Generated Intervals Preview */}
         <div className="mt-4">
-          <h3 className="text-sm font-semibold text-slate-700 mb-2">Jadwal Minum Hari Ini ({intervals.length} Sesi):</h3>
-          <div className="flex flex-wrap gap-2 max-h-36 overflow-y-auto p-2 bg-slate-50 rounded-xl border border-slate-200">
+          <h3 className="text-sm font-semibold text-[#033F4F] mb-2">Jadwal Minum Hari Ini ({intervals.length} Sesi):</h3>
+          <div className="flex flex-wrap gap-2 max-h-36 overflow-y-auto p-2 bg-[#EAF8FD] rounded-xl border-2 border-[#BFE9F5]">
             {intervals.map((time, idx) => (
-              <span key={idx} className="px-3 py-1 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-700 shadow-xs flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-purple-500"></span>
+              <span key={idx} className="px-3 py-1 bg-white border-2 border-[#09BAED] rounded-lg text-xs font-medium text-[#033F4F] shadow-xs flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-[#09BAED]"></span>
                 {time}
               </span>
             ))}

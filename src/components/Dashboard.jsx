@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 
-export default function Dashboard({ currentGoal, scheduleActive, intervalsList }) {
+export default function Dashboard({ currentGoal, scheduleActive }) {
   const [consumed, setConsumed] = useState(Number(localStorage.getItem('water_consumed')) || 0);
   const [goal, setGoal] = useState(Number(currentGoal) || Number(localStorage.getItem('water_goal')) || 2000);
-  const [syncStatus, setSyncStatus] = useState('Belum disinkronkan');
+  const [syncStatus, setSyncStatus] = useState('Terhubung ke sistem lokal');
 
   useEffect(() => {
     if (currentGoal) {
@@ -29,14 +29,12 @@ export default function Dashboard({ currentGoal, scheduleActive, intervalsList }
 
   const syncToSupabase = async (amount) => {
     try {
-      setSyncStatus('Menyinkronkan...');
-      const { data, error } = await supabase
+      setSyncStatus('Menyinkronkan ke Supabase...');
+      const { error } = await supabase
         .from('water_logs')
-        .insert([{ consumed: amount, goal: goal, date: new Date().toISOString().split('T')[0] }])
-        .select();
+        .insert([{ consumed: amount, goal: goal, date: new Date().toISOString().split('T')[0] }]);
 
       if (error) {
-        console.warn('Supabase insert note:', error.message);
         setSyncStatus('Tersimpan lokal (Supabase offline)');
       } else {
         setSyncStatus('Tersinkron ke Supabase ✓');
@@ -48,76 +46,132 @@ export default function Dashboard({ currentGoal, scheduleActive, intervalsList }
 
   const percentage = Math.min(Math.round((consumed / goal) * 100), 100);
 
+  const getProgressColor = (pct) => {
+  if (pct >= 100) return '#22C55E'; // hijau: tercapai
+  if (pct >= 70) return '#09BAED';  // biru: hampir
+  if (pct >= 40) return '#FACC15';  // kuning: setengah jalan
+  return '#FB7185';                 // merah muda: masih sedikit
+  };
+  const progressColor = getProgressColor(percentage);
+
   return (
-    <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 max-w-xl mx-auto space-y-6">
-      <div className="flex items-center gap-3">
-        <div className="p-3 bg-blue-100 text-blue-600 rounded-xl">
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-          </svg>
-        </div>
-        <div>
-          <h2 className="text-xl font-bold text-slate-900">Dashboard Utama & Rekap Harian</h2>
-          <p className="text-sm text-slate-500">Fitur oleh Inyaa - Pantau progress & sinkronisasi Supabase</p>
-        </div>
-      </div>
-
-      {/* Progress Card */}
-      <div className="p-6 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl text-white shadow-md text-center space-y-4">
-        <span className="text-xs uppercase tracking-widest font-semibold bg-white/20 px-3 py-1 rounded-full">Progress Hari Ini</span>
-        
-        <div className="text-5xl font-extrabold tracking-tight">
-          {consumed} <span className="text-lg font-medium opacity-80">/ {goal} ml</span>
+    <div className="w-full max-w-4xl mx-auto">
+      <div className="bg-white p-8 rounded-3xl shadow-xl border-2 border-[#BFE9F5] space-y-8">
+        {/* Header */}
+        <div className="flex items-center justify-between border-b-2 border-[#BFE9F5] pb-6">
+          <div>
+            <h2 className="text-3xl font-black text-[#033F4F]">Dashboard Utama</h2>
+            <p className="text-sm text-[#055F78] font-semibold mt-1">Pantau rekapitulasi hidrasi harian kamu</p>
+          </div>
+          <div className="px-5 py-2.5 bg-[#EAF8FD] border-2 border-[#09BAED] text-[#033F4F] rounded-2xl font-bold">
+            🎯 {goal} ml
+          </div>
         </div>
 
-        {/* Progress Bar */}
-        <div className="w-full bg-white/30 rounded-full h-4 overflow-hidden p-0.5">
-          <div
-            className="bg-white h-full rounded-full transition-all duration-500"
-            style={{ width: `${percentage}%` }}
-          ></div>
-        </div>
-
-        <div className="text-sm font-medium">{percentage}% tercapai dari target harian</div>
-      </div>
-
-      {/* Manual Action Buttons */}
-      <div className="space-y-3">
-        <label className="block text-sm font-semibold text-slate-700">Tambah Konsumsi Air Manual:</label>
-        <div className="grid grid-cols-3 gap-3">
-          <button
-            onClick={() => addWater(100)}
-            className="py-2.5 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold rounded-xl border border-blue-200 transition"
+        {/* Progress Card */}
+        <div className="p-8 bg-gradient-to-br from-[#055F78] to-[#067FA1] rounded-3xl shadow-2xl space-y-6">
+          <span 
+            className="inline-block text-xs uppercase tracking-widest font-extrabold px-4 py-1.5 rounded-full text-[#033F4F]"
+            style={{ backgroundColor: progressColor }}
           >
-            +100 ml
-          </button>
-          <button
-            onClick={() => addWater(250)}
-            className="py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-sm transition"
-          >
-            +250 ml (1 Gelas)
-          </button>
-          <button
-            onClick={() => addWater(500)}
-            className="py-2.5 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold rounded-xl border border-blue-200 transition"
-          >
-            +500 ml (Botol)
-          </button>
-        </div>
-      </div>
+            Progress Hari Ini
+          </span>
 
-      {/* Status & Sync Info */}
-      <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-3">
-        <div className="text-xs text-slate-600 space-y-1">
-          <div>Status Jadwal: <span className={`font-bold ${scheduleActive ? 'text-emerald-600' : 'text-slate-500'}`}>{scheduleActive ? 'Aktif' : 'Non-Aktif'}</span></div>
-          <div>Sinkronisasi: <span className="font-semibold text-blue-600">{syncStatus}</span></div>
+          <div className="space-y-2">
+            <div 
+              className="text-7xl font-black drop-shadow-lg"
+              style={{ color: progressColor }}
+            >
+              {consumed} <span className="text-3xl font-bold">/ {goal} ml</span>
+            </div>
+            <p 
+              className="text-base font-semibold"
+              style={{ color: progressColor }}
+            >
+              {percentage >= 100
+                ? '🎉 Target tercapai! Luar biasa!'
+                : `Kurang ${Math.max(0, goal - consumed)} ml lagi untuk mencapai target.`}
+            </p>
+          </div>
+
+          {/* Progress Bar */}
+          <div className="w-full rounded-full h-6 overflow-hidden p-1.5" style={{ background: 'rgba(0,0,0,0.25)' }}>
+            <div
+              className="h-full rounded-full transition-all duration-700"
+              style={{
+                width: `${percentage}%`,
+                minWidth: percentage > 0 ? '12px' : '0',
+                backgroundColor: progressColor,
+                boxShadow: `0 0 20px ${progressColor}`,
+              }}
+            ></div>
+          </div>
+
+          <div 
+            className="flex justify-between items-center text-sm font-bold"
+            style={{ color: progressColor }}
+          >
+            <span>0%</span>
+            <span
+              className="text-base font-black px-4 py-1.5 rounded-full text-[#033F4F]"
+              style={{ backgroundColor: progressColor }}
+            >
+              {percentage}%
+            </span>
+            <span>100%</span>
+          </div>
         </div>
-        <button
-          onClick={resetWater}
-          className="px-3 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold rounded-lg transition"
-        >
-          Reset Harian
-        </button>
+
+        {/* Quick Add Buttons */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-bold text-[#033F4F]">💧 Tambah Konsumsi Air Cepat</h3>
+          <div className="grid grid-cols-3 gap-4">
+            <button
+              onClick={() => addWater(100)}
+              className="py-4 bg-[#EAF8FD] hover:bg-[#09BAED]/20 text-[#055F78] font-bold rounded-2xl border-2 border-[#09BAED]/50 hover:border-[#09BAED] transition-all active:scale-95"
+            >
+              <div className="text-2xl font-black">+100</div>
+              <div className="text-xs font-semibold opacity-80">ml</div>
+            </button>
+            <button
+              onClick={() => addWater(250)}
+              className="py-4 bg-[#09BAED] hover:bg-[#08A0C9] text-[#033F4F] font-bold rounded-2xl shadow-lg transition-all active:scale-95"
+            >
+              <div className="text-2xl font-black">+250</div>
+              <div className="text-xs font-semibold opacity-90">ml (1 Gelas)</div>
+            </button>
+            <button
+              onClick={() => addWater(500)}
+              className="py-4 bg-[#EAF8FD] hover:bg-[#09BAED]/20 text-[#055F78] font-bold rounded-2xl border-2 border-[#09BAED]/50 hover:border-[#09BAED] transition-all active:scale-95"
+            >
+              <div className="text-2xl font-black">+500</div>
+              <div className="text-xs font-semibold opacity-80">ml (1 Botol)</div>
+            </button>
+          </div>
+        </div>
+
+        {/* Status Section */}
+        <div className="p-6 bg-[#EAF8FD] rounded-2xl border-2 border-[#BFE9F5] space-y-4">
+          <h3 className="text-lg font-bold text-[#033F4F]">📊 Status & Kontrol</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="flex items-center justify-between p-4 bg-white rounded-xl border-2 border-[#09BAED]/30">
+              <span className="text-sm font-bold text-[#033F4F]">Status Jadwal</span>
+              <span className={`text-xs font-bold px-3 py-1.5 rounded-full ${scheduleActive ? 'bg-[#09BAED] text-[#033F4F]' : 'bg-slate-300 text-[#055F78]'}`}>
+                {scheduleActive ? '✓ Aktif' : '✕ Non-Aktif'}
+              </span>
+            </div>
+            <div className="flex items-center justify-between p-4 bg-white rounded-xl border-2 border-[#09BAED]/30">
+              <span className="text-sm font-bold text-[#033F4F]">Sinkronisasi</span>
+              <span className="text-xs font-bold text-[#067FA1]">{syncStatus}</span>
+            </div>
+          </div>
+          <button
+            onClick={resetWater}
+            className="w-full py-3 bg-white hover:bg-rose-50 border-2 border-rose-300 hover:border-rose-500 text-rose-700 font-bold rounded-xl transition-all active:scale-95"
+          >
+            ↺ Reset Harian
+          </button>
+        </div>
       </div>
     </div>
   );
